@@ -12,6 +12,10 @@ Built as a portfolio-grade, production-ready, cloud-deployable monorepo:
 
 > The app is fully usable **even when the backend or AI service is offline** — every screen falls back to rich mock data, perfect for demos.
 
+### Go live (not localhost)
+
+Follow **[docs/QUICK_DEPLOY.md](docs/QUICK_DEPLOY.md)** — Render Blueprint (`render.yaml`) + Vercel + MongoDB Atlas. I cannot sign into your cloud accounts; that guide is the fastest path to a public URL.
+
 ---
 
 ## ✨ Features

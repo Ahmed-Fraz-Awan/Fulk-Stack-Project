@@ -1,0 +1,52 @@
+# Render Blueprint — deploy AI + backend from this repo
+# Dashboard: https://dashboard.render.com → New → Blueprint → connect GitHub → select repo
+#
+# After first deploy you must set (in Render dashboard → each service → Environment):
+#   sdt-backend:   MONGODB_URI (MongoDB Atlas), CORS_ORIGIN (your Vercel URL, no trailing slash)
+# Optional: tweak ALLOWED_ORIGINS on sdt-ai to match your Vercel + Render URLs
+#
+# Order matters: AI is deployed first so backend can reference its URL.
+
+services:
+  - type: web
+    name: sdt-ai
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: ai-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: ALLOWED_ORIGINS
+        sync: false
+        # Set to: https://YOUR-FRONTEND.vercel.app,https://YOUR-BACKEND.onrender.com
+
+  - type: web
+    name: sdt-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node src/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AI_SERVICE_URL
+        fromService:
+          name: sdt-ai
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: CORS_ORIGIN
+        sync: false
+        # Required: your Vercel site, e.g. https://student-twin.vercel.app

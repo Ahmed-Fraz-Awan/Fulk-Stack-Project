@@ -1,0 +1,45 @@
+# Deploy Next.js frontend to Vercel when `frontend/` or this file changes.
+#
+# One-time setup (you do this once in GitHub):
+#   1. https://vercel.com → create/link project (import this repo, root = frontend)
+#   2. Vercel → Project → Settings → General → copy Project ID
+#   3. Vercel → Account Settings → Tokens → create token
+#   4. Vercel → Team Settings → copy Team ID (or Personal: vercel.com/account → id in API if needed)
+#   5. GitHub repo → Settings → Secrets and variables → Actions → New repository secret:
+#        VERCEL_TOKEN
+#        VERCEL_ORG_ID   (Team ID; for hobby: often same flow from `vercel whoami` / project settings)
+#        VERCEL_PROJECT_ID
+#
+# Easiest way to get ORG + PROJECT IDs: in frontend folder run:
+#   npx vercel link
+#   cat .vercel/project.json
+#
+# Also set these in the Vercel dashboard (Production → Environment Variables):
+#   NEXT_PUBLIC_API_URL       https://sdt-backend.onrender.com/api   (your Render URL + /api)
+#   NEXT_PUBLIC_AI_URL        https://sdt-ai.onrender.com             (your AI service URL, or same as backend if you proxy)
+#   NEXTAUTH_URL              https://YOUR-PROJECT.vercel.app
+#   NEXTAUTH_SECRET           (openssl rand -base64 32)
+
+name: Deploy frontend to Vercel
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/deploy-vercel.yml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: frontend
+          vercel-args: "--prod"
