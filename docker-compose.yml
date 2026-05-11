@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: sdt-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - sdt_mongo:/data/db
+
+  ai:
+    build:
+      context: ./ai-service
+    container_name: sdt-ai
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:5000"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: sdt-backend
+    restart: unless-stopped
+    depends_on:
+      - mongo
+      - ai
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGODB_URI: mongodb://mongo:27017/sdt
+      JWT_SECRET: dev-secret-change-me
+      AI_SERVICE_URL: http://ai:8000
+      CORS_ORIGIN: http://localhost:3000
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: sdt-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:5000/api
+      NEXT_PUBLIC_AI_URL: http://localhost:8000
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: dev-secret-change-me
+
+volumes:
+  sdt_mongo:

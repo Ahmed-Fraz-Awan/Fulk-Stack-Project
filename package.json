@@ -1,0 +1,28 @@
+{
+  "name": "student-digital-twin-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered Digital Twin platform for students — predicts performance, burnout, focus and study patterns.",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:frontend": "npm --workspace frontend run dev",
+    "dev:backend": "npm --workspace backend run dev",
+    "dev:ai": "cd ai-service && uvicorn app.main:app --reload --port 8000",
+    "build": "npm --workspace frontend run build && npm --workspace backend run build",
+    "lint": "npm --workspace frontend run lint",
+    "seed": "npm --workspace backend run seed"
+  },
+  "keywords": [
+    "ai",
+    "education",
+    "digital-twin",
+    "nextjs",
+    "fastapi",
+    "mongodb",
+    "machine-learning"
+  ],
+  "license": "MIT"
+}
